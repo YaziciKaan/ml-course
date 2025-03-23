@@ -2,24 +2,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_regression
 
-def compute_cost(y_true, y_pred):
-    m = len(y_true)
-    cost = np.sum((y_true - y_pred) ** 2) / m
-    return cost
+def compute_cost(x, y, w, b):
+    m = len(x)
+    cost = 0
+    for i in range(m):
+        f_wb = w * x[i] + b
+        cost = cost + (f_wb - y[i]) ** 2
+    total_cost = (1 / m) * cost
+    return total_cost
+
 
 
 def gradient_descent(x, y, iterations, learning_rate, stopping_threshold=1e-6):
     current_weight = 0.1
     current_bias = 0.01
 
-    n = float(len(x))
+    n = len(x)
+
     costs = []
     weights = []
     previous_cost = None
+    weight_derivative = 0
+    bias_derivative = 0
     for i in range(iterations):
         y_predicted = (current_weight * x) + current_bias
-        current_cost = compute_cost(y, y_predicted)
-
+        current_cost = compute_cost(x, y, current_weight, current_bias)
         if previous_cost and abs(previous_cost - current_cost) <= stopping_threshold:
             break
 
@@ -27,10 +34,11 @@ def gradient_descent(x, y, iterations, learning_rate, stopping_threshold=1e-6):
         weights.append(current_weight)
         costs.append(current_cost)
 
-        weight_derivate = -(2/n) * np.sum(x * (y - y_predicted))
-        bias_derivate = -(2/n) * np.sum(y-y_predicted)
-        current_weight = current_weight - (learning_rate * weight_derivate)
-        current_bias = current_bias - (learning_rate * bias_derivate)
+        weight_derivative = (2 / n) * np.sum(x * (y_predicted - y))
+        bias_derivative = (2 / n) * np.sum(y_predicted - y)
+
+        current_weight = current_weight - (learning_rate * weight_derivative)
+        current_bias = current_bias - (learning_rate * bias_derivative)
 
         print(f"Iteration: {i}, Cost: {current_cost}, Weight: {current_weight}, Bias: {current_bias}")
 
